@@ -3,7 +3,8 @@
 ```javascript
 helm repo add twuni https://helm.twun.io
 helm repo update
-echo 'admin:Test@123' > /tmp/htpasswd
+yum install -y httpd-tools
+htpasswd -bBc /tmp/htpasswd admin Test@123
 helm install docker-registry \
   --namespace container-registry --create-namespace \
   --set replicaCount=2 \
@@ -12,5 +13,6 @@ helm install docker-registry \
   --set service.type=LoadBalancer \
   --set persistence.deleteEnabled=true \
   --set persistence.storageClass=local-path \
+  --set secrets.htpasswd=$(cat /tmp/htpasswd) \
   twuni/docker-registry
 ```
