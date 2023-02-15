@@ -12,6 +12,5 @@ helm install docker-registry \
   --set service.type=LoadBalancer \
   --set persistence.deleteEnabled=true \
   --set persistence.storageClass=local-path \
-  --set secrets.htpasswd=$(cat /tmp/htpasswd) \
   twuni/docker-registry
 ```
