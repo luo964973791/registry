@@ -1,6 +1,7 @@
 ### 一、安装registry.
 
 ```javascript
+echo "Test!@123" > /tmp/htpasswd
 helm install docker-registry \
   --namespace container-registry --create-namespace \
   --set replicaCount=2 \
