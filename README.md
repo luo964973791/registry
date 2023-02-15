@@ -3,7 +3,7 @@
 ```javascript
 helm repo add twuni https://helm.twun.io
 helm repo update
-echo 'Test!@123' > /tmp/htpasswd
+echo 'admin:Test@123' > /tmp/htpasswd
 helm install docker-registry \
   --namespace container-registry --create-namespace \
   --set replicaCount=2 \
