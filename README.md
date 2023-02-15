@@ -15,4 +15,7 @@ helm install docker-registry \
   --set persistence.storageClass=local-path \
   --set secrets.htpasswd=$(cat /tmp/htpasswd) \
   twuni/docker-registry
+  
+  
+curl -u admin:Test@123 http://127.0.0.1:5000/v2/_catalog
 ```
