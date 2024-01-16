@@ -51,7 +51,6 @@ docker run -d -p 5000:5000 --restart=always  --name=registry \
 -v /data/registry/config/:/etc/docker/registry/ \
 -v /data/registry/auth/:/auth/ \
 -e "REGISTRY_AUTH=htpasswd" \
--e REGISTRY_STORAGE_DELETE_ENABLED="true" \
 -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
 -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
 -v /data/registry/:/var/lib/registry/ \
