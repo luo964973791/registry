@@ -17,4 +17,42 @@ helm install docker-registry \
   twuni/docker-registry
   
 curl -u admin:Test@123 http://127.0.0.1:5000/v2/_catalog
+
+
+
+#docker部署
+mkdir -p  /data/registry/auth
+mkdir -p  /data/registry/config
+docker run --rm httpd:alpine htpasswd -Bbn admin 123456 >> /data/registry/auth/htpasswd
+cat << EOF > /data/registry/config/config.yml
+version: 0.1
+log:
+  fields:
+    service: registry
+storage:
+  delete:
+    enabled: true
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+http:
+  addr: :5000
+  headers:
+    X-Content-Type-Options: [nosniff]
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+threshold: 3
+EOF  
+   
+docker run -d -p 5000:5000 --restart=always  --name=registry \
+-v /data/registry/config/:/etc/docker/registry/ \
+-v /data/registry/auth/:/auth/ \
+-e "REGISTRY_AUTH=htpasswd" \
+-e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+-e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+-v /data/registry/:/var/lib/registry/ \
+registry
 ```
