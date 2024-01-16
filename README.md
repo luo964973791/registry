@@ -55,4 +55,11 @@ docker run -d -p 5000:5000 --restart=always  --name=registry \
 -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
 -v /data/registry/:/var/lib/registry/ \
 registry
+
+
+#registry-web ui
+docker run -it -p 8082:80 --name docker-registry-ui \
+  -e REGISTRY_URL=http://172.27.0.8:5000 \
+  -e CATALOG_ELEMENTS_LIMIT="1000" \
+  joxit/docker-registry-ui:static
 ```
