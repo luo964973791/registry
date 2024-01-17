@@ -72,4 +72,47 @@ echo -n "admin:123456" | base64
 curl -i -H "Authorization: Basic YWRtaW46MTIzNDU2" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" http://172.27.0.8:5000/v2/nginx/manifests/20240117-151117 | grep "Docker-Content-Digest:"
 #这里的sha256:c13cf1c70064e1691ee7f33763ab6874418a81cc59cef365b158a7470a784791填上面的输出结果.
 curl -X "DELETE" -H "Authorization: Basic YWRtaW46MTIzNDU2" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" http://172.27.0.8:5000/v2/nginx/manifests/sha256:c13cf1c70064e1691ee7f33763ab6874418a81cc59cef365b158a7470a784791
+
+
+删除镜像脚本
+#!/bin/bash
+
+# 设置变量
+registry_url="http://172.27.0.8:5000/v2/nginx"
+username="admin"
+password="123456"
+
+# 计算 base64 编码的凭据
+credentials=$(echo -n "$username:$password" | base64)
+
+# 获取标签列表
+tags_response=$(curl -s -u "$username:$password" -X GET "$registry_url/tags/list" | jq -r '.tags // [] | .[]')
+
+if [ -z "$tags_response" ]; then
+    echo "Error: Unable to retrieve tags from the registry. Exiting."
+    exit 1
+fi
+
+# 用于存储已删除的digest
+deleted_digests=()
+
+for tag in $tags_response
+do
+    # 获取Digest
+    digest=$(curl -s -i -H "Authorization: Basic $credentials" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" "$registry_url/manifests/$tag" | grep -o "Docker-Content-Digest:.*" | tr -d '\r' | awk '{print $2}')
+
+    # 检查是否已删除过相同的digest
+    if [[ ${deleted_digests[*]} =~ $digest ]]; then
+        :
+    else
+        # 删除镜像，检查命令的退出状态码
+        if curl -s -X "DELETE" -H "Authorization: Basic $credentials" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" "$registry_url/manifests/$digest" 2>/dev/null; then
+            echo "Image deletion successful for digest $digest"
+            # 将已删除的digest添加到数组中
+            deleted_digests+=("$digest")
+        else
+            echo "Image deletion failed for digest $digest"
+        fi
+    fi
+done
 ```
