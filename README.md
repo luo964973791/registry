@@ -62,4 +62,14 @@ docker run -it -p 8082:80 --name docker-registry-ui \
   -e REGISTRY_URL=http://172.27.0.8:5000 \
   -e CATALOG_ELEMENTS_LIMIT="1000" \
   joxit/docker-registry-ui:static
+
+
+
+#删除镜像步骤.
+curl -u "admin:123456" -X GET http://172.27.0.8:5000/v2/nginx/tags/list
+echo -n "admin:123456" | base64
+#这里的Basic YWRtaW46MTIzNDU2填echo -n "admin:123456" | base64加密的字符串.
+curl -i -H "Authorization: Basic YWRtaW46MTIzNDU2" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" http://172.27.0.8:5000/v2/nginx/manifests/20240117-151117 | grep "Docker-Content-Digest:"
+#这里的sha256:c13cf1c70064e1691ee7f33763ab6874418a81cc59cef365b158a7470a784791填上面的输出结果.
+curl -X "DELETE" -H "Authorization: Basic YWRtaW46MTIzNDU2" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" http://172.27.0.8:5000/v2/nginx/manifests/sha256:c13cf1c70064e1691ee7f33763ab6874418a81cc59cef365b158a7470a784791
 ```
